@@ -1,0 +1,21 @@
+.git
+.venv
+__pycache__/
+*.py[cod]
+*.pyo
+.DS_Store
+.tmp/
+.gradio/
+notebooks/
+data/
+artifacts/
+mlartifacts/
+mlflow.db
+README.md
+
+# Keep the promoted serving bundle inside the app image.
+!src/
+!src/serving/
+!src/serving/model/
+!src/serving/model/**
+!requirements.txt

@@ -17,4 +17,4 @@ mlartifacts/
 artifacts/
 src/serving/model/
 data/processed/
-.tmp/
+.tmp
