@@ -10,13 +10,11 @@ env/
 __pycache__/
 *.py[cod]
 *.pyo
+*.db
 
-# # Big artifacts we don't want in git
-# mlruns/
-# artifacts/
-# data/raw/
-# data/processed/
-
-# # BUT keep our bundled serving model in the repo
-# !src/serving/model/
-# !src/serving/model/**
+# Big artifacts we don't want in git
+mlartifacts/
+artifacts/
+src/serving/model/
+data/processed/
+.tmp/
