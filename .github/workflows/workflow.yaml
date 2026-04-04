@@ -1,1 +1,67 @@
-name:
+name: Telco Customer Churn — CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "data/processed/**"
+      - ".tmp/**"
+      - "README.md"
+      - "notebooks/**"
+      - "mlartifacts/**"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 1: Give GitHub Actions permission to talk to AWS
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # Step 2: Login to ECR — captures registry URL as output
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Step 3: Set up Buildx for layer caching
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Step 4: Build and push with caching + dual tags
+      - name: Build and push image to ECR
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          dockerfile: Dockerfile
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/telco-customer-churn:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Lets do only till pushing the image to ECR for now.
+      # # Step 5: Tell ECS to use the new image
+      # - name: Deploy to ECS
+      #   run: |
+      #     aws ecs update-service \
+      #       --cluster telco-customer-churn \
+      #       --service telco-customer-churn-fastapi \
+      #       --force-new-deployment \
+      #       --region ${{ secrets.AWS_REGION }}
+
+      # # Step 6: Wait until ECS confirms new tasks are healthy
+      # - name: Wait for deployment to stabilize
+      #   run: |
+      #     aws ecs wait services-stable \
+      #       --cluster telco-customer-churn \
+      #       --services telco-customer-churn-fastapi \
+      #       --region ${{ secrets.AWS_REGION }}
+      #     echo "Deployment successful"
