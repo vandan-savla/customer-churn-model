@@ -15,6 +15,6 @@ __pycache__/
 # Big artifacts we don't want in git
 mlartifacts/
 artifacts/
-src/serving/model/
+!src/serving/model/
 data/processed/
 .tmp
