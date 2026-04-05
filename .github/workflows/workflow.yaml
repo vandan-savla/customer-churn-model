@@ -9,6 +9,7 @@ on:
       - "README.md"
       - "notebooks/**"
       - "mlartifacts/**"
+      - "assets/**"
 
 jobs:
   build-and-deploy:
@@ -40,28 +41,9 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          dockerfile: Dockerfile
+          file: Dockerfile
           push: true
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/telco-customer-churn:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      # Lets do only till pushing the image to ECR for now.
-      # # Step 5: Tell ECS to use the new image
-      # - name: Deploy to ECS
-      #   run: |
-      #     aws ecs update-service \
-      #       --cluster telco-customer-churn \
-      #       --service telco-customer-churn-fastapi \
-      #       --force-new-deployment \
-      #       --region ${{ secrets.AWS_REGION }}
-
-      # # Step 6: Wait until ECS confirms new tasks are healthy
-      # - name: Wait for deployment to stabilize
-      #   run: |
-      #     aws ecs wait services-stable \
-      #       --cluster telco-customer-churn \
-      #       --services telco-customer-churn-fastapi \
-      #       --region ${{ secrets.AWS_REGION }}
-      #     echo "Deployment successful"
